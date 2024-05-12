@@ -1,0 +1,19 @@
+.bg-darkblue{
+    background-color: #23395B;
+}
+
+.box-shadow{
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.bg-lightgreen{
+    background-color: #00B1A5;
+}
+
+.bg-lightred{
+    background-color: #FF5964;
+}
+
+.bg-main{
+    background-color: #F9E8C9;
+}
