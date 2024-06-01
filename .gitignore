@@ -1,8 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
+frontend/node_modules
+frontend/.pnp
 .pnp.js
 
 # testing
@@ -12,7 +12,7 @@
 /build
 
 # misc
-.DS_Store
+frontend/.DS_Store
 .env.local
 .env.development.local
 .env.test.local
@@ -21,6 +21,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/package-lock.json
+frontend/package-lock.json
 
-src/Server/node_modules/
+frontend/src/Server/node_modules/
