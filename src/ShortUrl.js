@@ -17,10 +17,13 @@ export default function ShortUrl() {
     const [shortenedUrl, setShortenedUrl] = useState('');
     const [largeUrl, setLargeUrl] = useState('');
     const [popup, setPopup] = useState(false);
+    const [invalidUrl, setInvalidUrl] = useState(false);
 
     const [urlsList, setUrlsList] = useState([]);
 
     const addNewUrl = (sUrl) => {
+        
+        
         const sendData =  {
             mainUrl: largeUrl,
             newUrl: sUrl
@@ -51,10 +54,19 @@ export default function ShortUrl() {
     }
 
     const getShorternedUrl = () => {
-        if (largeUrl.length !== 0){
-            sUrl =  myDomain + v4().slice(0, 13);
-            addNewUrl(sUrl);
-        }    
+        let testUrl;
+        try {
+            testUrl = new URL(largeUrl);
+        } catch(error){
+            console.log(error)
+        }
+        if(!testUrl){
+            setInvalidUrl(true)
+            return;
+        } 
+        sUrl =  myDomain + v4().slice(0, 13);
+        addNewUrl(sUrl);
+          
     }
     
     const handleKeyDown = (event) => {
@@ -102,13 +114,13 @@ export default function ShortUrl() {
 
   return (
     <div className="w-screen h-screen flex flex-col gap-4 items-center justify-start py-8 bg-main">
-        <div className='w-11/12 sm:w-7/12 flex flex-col items-center max-h-screen overflow-y-auto
+        <div className='w-11/12 sm:w-8/12 flex flex-col items-center max-h-screen overflow-y-auto
         rounded-sm border-mui-blue py-8 gap-6 box-shadow bg-darkblue'>
             <header className='text-lg font-medium text-white'>Paste your url to shorten</header>
 
             <div className='flex w-10/12 justify-center'>
                 <input 
-                className='w-8/12 outline-none px-2 h-8 rounded-s-sm text-sm'
+                className='w-9/12 outline-none px-2 h-8 rounded-s-sm text-sm'
                 onChange={(event) => {setLargeUrl(event.target.value)}}
                 onKeyDown={handleKeyDown}
                 value={largeUrl}
@@ -119,7 +131,8 @@ export default function ShortUrl() {
                 >Shorten</button>
                 <button className='w-8 h=8 px-2 bg-lightred text-white rounded-e-sm
                 flex items-center justify-center'
-                onClick={ () => {setLargeUrl('')}}>
+                onClick={ () => {setLargeUrl('');
+                setShortenedUrl('')}}>
                     <Clear />
                 </button>
             </div>
@@ -143,24 +156,25 @@ export default function ShortUrl() {
             }
         </div>
         {urlsList.length > 0 && 
-        <div className='w-11/12 sm:w-7/12 flex flex-col items-center max-h-80 overflow-y-auto
+        <div className='w-11/12 sm:w-8/12 flex flex-col items-center max-h-80 overflow-y-auto
         rounded-sm border-mui-blue py-8 gap-6 box-shadow bg-darkblue text-white'>
             <div className='w-full h-6 flex justify-between items-center text-sm'>
                 <span className='w-2/12 sm:w-1/12 h-full  flex justify-center'>Sl no</span>
                 <span className='w-5/12 h-full  flex justify-center'>Long url</span>
                 <span className='w-4/12 h-full flex justify-center'>Short url</span>
-                <span className='w-1/12 h-full flex justify-center '>Action</span>
+                <span className='w-2/12 h-full flex justify-center '>Action</span>
             </div>
 
             {
                 urlsList.map((url, index) => {
                     return (
                     <div  className='w-full h-8 flex justify-between items-center text-xs' key={index}>
-                        <div className='w-2/12 sm:w-1/12 h-full text-white flex justify-center '>{index+1}</div>
-                        <div className='w-5/12 h-full text-white flex overflow-x-auto'>{url.longUrl}</div>
-                        <a href={url.shortUrl} target='_blank'>{url.shortUrl}</a>
+                        <div className='w-2/12 sm:w-1/12 text-white flex justify-center '>{index+1}</div>
+                        <p className='w-4/12 text-white inline-block whitespace-nowrap overflow-x-auto'>{url.longUrl}</p>
+                        <a href={url.shortUrl} target='_blank'
+                        className='inline-block whitespace-nowrap overflow-x-auto w-3/12'>{url.shortUrl}</a>
 
-                        <div className='w-1/12 h-full flex justify-center items-center gap-2'>
+                        <div className='w-2/12 h-full flex justify-center items-center gap-2'>
                             <button title='Copy short url to clipboard'
                             onClick={() => {
                                 navigator.clipboard.writeText(url.shortUrl);
@@ -191,6 +205,17 @@ export default function ShortUrl() {
             message="Copied to clipboard"
             style={{backgroundColor: '#1db954'}} />
 
+        </Snackbar>
+
+        <Snackbar
+        anchorOrigin={{vertical, horizontal}}
+        key={vertical+horizontal}
+        open={invalidUrl}
+        autoHideDuration={2000}
+        onClose={ ()=>{setInvalidUrl(false)} }>
+            <SnackbarContent
+            message="Invalid URL"
+            style={{backgroundColor: '#FF5964'}} />
         </Snackbar>
     </div>
   )
