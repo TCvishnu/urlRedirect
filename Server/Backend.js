@@ -1,4 +1,4 @@
-const e = require("express");
+
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -7,7 +7,8 @@ const {MongoClient} = require("mongodb");
 const url = "mongodb+srv://amhungry26:swJzX15lQ1gooulA@learncluster.iom0jkz.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(url);
 
-const myDomain = "http://localhost:4000/";
+const myDomain = "https://url-redirect-api.onrender.com/";
+//https://url-redirect-api.onrender.com/
 
 let data;
 app.use(express.json())
