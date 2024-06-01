@@ -10,7 +10,8 @@ import { Snackbar, SnackbarContent} from '@mui/material';
 
 const vertical = 'bottom';
 const horizontal = 'center';
-const myDomain = "http://localhost:4000/";
+const myDomain = process.env.REACT_APP_API_BASE_URL;
+console.log(myDomain);
 
 export default function ShortUrl() {
     let sUrl;
@@ -21,8 +22,11 @@ export default function ShortUrl() {
 
     const [urlsList, setUrlsList] = useState([]);
 
-    const addNewUrl = (sUrl) => {
-        
+    const getFullUrl = (path) => {
+        return myDomain + path;
+    }
+
+    const addNewUrl = (sUrl) => {     
         
         const sendData =  {
             mainUrl: largeUrl,
@@ -64,7 +68,7 @@ export default function ShortUrl() {
             setInvalidUrl(true)
             return;
         } 
-        sUrl =  myDomain + v4().slice(0, 13);
+        sUrl =  myDomain + v4()
         addNewUrl(sUrl);
           
     }
@@ -80,7 +84,8 @@ export default function ShortUrl() {
     }
 
     const initialFetchUrls = () => {
-        fetch("/api/urls")
+        const url = getFullUrl("/api/urls");
+        fetch(url)
         .then(response => response.json())
         .then(json => {
             setUrlsList(json.reverse());

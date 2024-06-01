@@ -4,7 +4,7 @@ const cors = require("cors");
 const app = express();
 
 const {MongoClient} = require("mongodb");
-const url = "mongodb+srv://amhungry26:swJzX15lQ1gooulA@learncluster.iom0jkz.mongodb.net/?retryWrites=true&w=majority";
+const url = process.env.MONGO_URL;
 const client = new MongoClient(url);
 
 const myDomain = "https://url-redirect-api.onrender.com/";

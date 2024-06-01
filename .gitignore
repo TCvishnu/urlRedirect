@@ -24,3 +24,5 @@ yarn-error.log*
 frontend/package-lock.json
 
 frontend/src/Server/node_modules/
+
+.envrc
