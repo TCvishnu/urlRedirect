@@ -11,7 +11,6 @@ import { Snackbar, SnackbarContent} from '@mui/material';
 const vertical = 'bottom';
 const horizontal = 'center';
 const myDomain = process.env.REACT_APP_API_BASE_URL;
-console.log(myDomain);
 
 export default function ShortUrl() {
     const [shortenedUrl, setShortenedUrl] = useState('');
@@ -64,7 +63,7 @@ export default function ShortUrl() {
             if (json){
                 const revJson = json.reverse()
                 setUrlsList(revJson);
-                setShortenedUrl(revJson[0].shortUrl);
+                setShortenedUrl(revJson[0].urlCode);
             }       
         })
         .catch(error => {
@@ -178,20 +177,20 @@ export default function ShortUrl() {
                     return (
                     <div  className='w-full h-8 flex justify-between items-center text-xs' key={index}>
                         <div className='w-2/12 sm:w-1/12 text-white flex justify-center '>{index+1}</div>
-                        <p className='w-4/12 text-white inline-block whitespace-nowrap overflow-x-auto'>{url.longUrl}</p>
-                        <a href={url.shortUrl} target='_blank'
-                        className='inline-block whitespace-nowrap overflow-x-auto w-3/12'>{url.shortUrl}</a>
+                        <p className='w-4/12 text-white inline-block whitespace-nowrap overflow-x-auto'>{url.mainUrl}</p>
+                        <a href={url.urlCode} target='_blank'
+                        className='inline-block whitespace-nowrap overflow-x-auto w-3/12'>{url.urlCode}</a>
 
                         <div className='w-2/12 h-full flex justify-center items-center gap-2'>
                             <button title='Copy short url to clipboard'
                             onClick={() => {
-                                navigator.clipboard.writeText(url.shortUrl);
+                                navigator.clipboard.writeText(url.urlCode);
                                 setPopup(true);
                             }}>
                                 <Copy />
                             </button>
                             <button className=' flex justify-center' 
-                            onClick={() => {handleDeleteUrl(url.shortUrl)}}>
+                            onClick={() => {handleDeleteUrl(url.urlCode)}}>
                                 <Delete />
                             </button>
                         </div>

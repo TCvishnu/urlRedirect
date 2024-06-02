@@ -15,7 +15,7 @@ app.use(cors())
 
 const bindUrls = () =>{
     data.map(bothUrl => {
-        bothUrl.shortUrl = myDomain + "/" + bothUrl.shortUrl
+        bothUrl.urlCode = myDomain + "/" + bothUrl.urlCode
         return bothUrl;
     })
 }
@@ -41,12 +41,12 @@ app.post("/api/addUrl", async(req, res) => {
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
-        const exist = await collection.findOne({longUrl: mainUrl});
+        const exist = await collection.findOne({mainUrl: mainUrl});
         
         if (!exist){
             await collection.insertOne({
-                shortUrl: newUuid,
-                longUrl: mainUrl
+                urlCode: newUuid,
+                mainUrl: mainUrl
             });
             data = await collection.find().toArray();  
             bindUrls();
@@ -59,15 +59,15 @@ app.post("/api/addUrl", async(req, res) => {
     }
 })
 
-app.get("/:tinyUrl", async (req, res) => {
-    const {tinyUrl} = req.params;
+app.get("/:urlCode", async (req, res) => {
+    const {urlCode} = req.params;
     try{
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
-        const originalUrl = await collection.findOne({shortUrl: tinyUrl});
+        const originalUrl = await collection.findOne({urlCode: urlCode});
         if (originalUrl){
-            res.redirect(originalUrl.longUrl);
+            res.redirect(originalUrl.mainUrl);
         }
 
     } catch (error) {
@@ -81,7 +81,7 @@ app.delete("/api/delete/", async (req, res) => {
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
-        await collection.deleteOne({shortUrl: uuidUrl});
+        await collection.deleteOne({urlCode: uuidUrl});
         data = await collection.find().toArray(); 
         bindUrls();   
         res.json(data);
