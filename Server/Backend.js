@@ -1,3 +1,4 @@
+const {v4} = require("uuid");
 
 const express = require("express");
 const cors = require("cors");
@@ -7,19 +8,25 @@ const {MongoClient} = require("mongodb");
 const url = process.env.MONGO_URL;
 const client = new MongoClient(url);
 
-const myDomain = "https://url-redirect-api.onrender.com/";
-//https://url-redirect-api.onrender.com/
-
+const myDomain = process.env.SERVER_URL;
 let data;
 app.use(express.json())
 app.use(cors())
+
+const bindUrls = () =>{
+    data.map(bothUrl => {
+        bothUrl.shortUrl = myDomain + "/" + bothUrl.shortUrl
+        return bothUrl;
+    })
+}
 
 app.get("/api/urls", async (req, res) => {
     try {
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
-        data = await collection.find().toArray();    
+        data = await collection.find().toArray();
+        bindUrls();
         res.json(data);
     } catch (error) {
         console.log("Failed to fetch urls: ", error);
@@ -29,7 +36,10 @@ app.get("/api/urls", async (req, res) => {
 
 app.post("/api/addUrl", async(req, res) => {
     const {mainUrl} = req.body
+    console.log(mainUrl)
     try{
+        const newUuid = v4();
+        console.log(newUuid);
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
@@ -37,10 +47,11 @@ app.post("/api/addUrl", async(req, res) => {
         
         if (!exist){
             await collection.insertOne({
-                shortUrl: req.body.newUrl,
+                shortUrl: newUuid,
                 longUrl: mainUrl
             });
-            data = await collection.find().toArray();   
+            data = await collection.find().toArray();  
+            bindUrls();
             res.json(data);
         }
     } catch (error) {
@@ -54,7 +65,7 @@ app.get("/:tinyUrl", async (req, res) => {
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
-        const originalUrl = await collection.findOne({shortUrl: myDomain + tinyUrl});
+        const originalUrl = await collection.findOne({shortUrl: tinyUrl});
         if (originalUrl){
             res.redirect(originalUrl.longUrl);
         }
@@ -64,14 +75,15 @@ app.get("/:tinyUrl", async (req, res) => {
     }
 })
 
-app.delete("/api/delete/:tinyUrl", async (req, res) => {
-    const {tinyUrl} = req.params;
+app.delete("/api/delete/", async (req, res) => {
+    const uuidUrl = req.body.shrtUrl.replace(myDomain + "/", "");
     try{
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
-        await collection.deleteOne({shortUrl: myDomain + tinyUrl});
-        data = await collection.find().toArray();    
+        await collection.deleteOne({shortUrl: uuidUrl});
+        data = await collection.find().toArray(); 
+        bindUrls();   
         res.json(data);
 
     } catch (error) {

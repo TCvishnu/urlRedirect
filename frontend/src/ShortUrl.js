@@ -14,7 +14,6 @@ const myDomain = process.env.REACT_APP_API_BASE_URL;
 console.log(myDomain);
 
 export default function ShortUrl() {
-    let sUrl;
     const [shortenedUrl, setShortenedUrl] = useState('');
     const [largeUrl, setLargeUrl] = useState('');
     const [popup, setPopup] = useState(false);
@@ -26,13 +25,23 @@ export default function ShortUrl() {
         return myDomain + path;
     }
 
-    const addNewUrl = (sUrl) => {     
+    const addNewUrl = () => { 
+        let testUrl;
+        try {
+            testUrl = new URL(largeUrl);
+        } catch(error){
+            console.log(error)
+        }
+        if(!testUrl){
+            setInvalidUrl(true)
+            return;
+        }      
         
         const sendData =  {
             mainUrl: largeUrl,
-            newUrl: sUrl
         };
-        fetch("/api/addUrl", {
+        
+        fetch(getFullUrl("/api/addUrl"), {
             method: "POST",
             headers: {
                 'Content-type': 'application/json'
@@ -49,33 +58,19 @@ export default function ShortUrl() {
             }
         })
         .then(json => {
-            setUrlsList(json.reverse());
-            setShortenedUrl(sUrl);
+            const revJson = json.reverse()
+            setUrlsList(revJson);
+            setShortenedUrl(revJson[0].shortUrl);
         })
         .catch(error => {
             console.log("Add url error: ", error);
         })
     }
 
-    const getShorternedUrl = () => {
-        let testUrl;
-        try {
-            testUrl = new URL(largeUrl);
-        } catch(error){
-            console.log(error)
-        }
-        if(!testUrl){
-            setInvalidUrl(true)
-            return;
-        } 
-        sUrl =  myDomain + v4()
-        addNewUrl(sUrl);
-          
-    }
     
     const handleKeyDown = (event) => {
         if (event.key === "Enter"){
-            getShorternedUrl();
+            addNewUrl();
         }
     }
 
@@ -100,12 +95,15 @@ export default function ShortUrl() {
     }, []);
 
     const handleDeleteUrl = (shrtUrl) => {
-        const sendUrl = shrtUrl.slice(22);
-        fetch(`/api/delete/${sendUrl}`, {
+        const dataToDel = {
+            shrtUrl: shrtUrl
+        }
+        fetch(getFullUrl("/api/delete/"), {
             method: "DELETE",
             headers: {
                 'Content-type': 'application/json'
-            }
+            },
+            body: JSON.stringify(dataToDel)
         })
         .then(response => response.json())
         .then(json => {
@@ -132,7 +130,7 @@ export default function ShortUrl() {
                 />
                 <button
                 className='w-3/12 bg-lightgreen text-white font-medium text-sm'
-                onClick={getShorternedUrl}
+                onClick={addNewUrl}
                 >Shorten</button>
                 <button className='w-8 h=8 px-2 bg-lightred text-white rounded-e-sm
                 flex items-center justify-center'
@@ -214,7 +212,7 @@ export default function ShortUrl() {
 
         <Snackbar
         anchorOrigin={{vertical, horizontal}}
-        key={vertical+horizontal}
+        key="invalidUrl"
         open={invalidUrl}
         autoHideDuration={2000}
         onClose={ ()=>{setInvalidUrl(false)} }>
