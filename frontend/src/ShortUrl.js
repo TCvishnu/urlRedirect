@@ -18,6 +18,7 @@ export default function ShortUrl() {
     const [largeUrl, setLargeUrl] = useState('');
     const [popup, setPopup] = useState(false);
     const [invalidUrl, setInvalidUrl] = useState(false);
+    const [urlExists, setUrlExists] = useState(false);
 
     const [urlsList, setUrlsList] = useState([]);
 
@@ -51,6 +52,8 @@ export default function ShortUrl() {
         .then(response => {
             if (response.ok){
                 return response.json();
+            } else if (response.status === 409) {
+                setUrlExists(true);
             } else {
                 return response.json().then((data) => {
                     throw new Error(data.error);
@@ -58,9 +61,11 @@ export default function ShortUrl() {
             }
         })
         .then(json => {
-            const revJson = json.reverse()
-            setUrlsList(revJson);
-            setShortenedUrl(revJson[0].shortUrl);
+            if (json){
+                const revJson = json.reverse()
+                setUrlsList(revJson);
+                setShortenedUrl(revJson[0].shortUrl);
+            }       
         })
         .catch(error => {
             console.log("Add url error: ", error);
@@ -218,6 +223,17 @@ export default function ShortUrl() {
         onClose={ ()=>{setInvalidUrl(false)} }>
             <SnackbarContent
             message="Invalid URL"
+            style={{backgroundColor: '#FF5964'}} />
+        </Snackbar>
+
+        <Snackbar
+        anchorOrigin={{vertical, horizontal}}
+        key="existingUrl"
+        open={urlExists}
+        autoHideDuration={2000}
+        onClose={ ()=>{setUrlExists(false)} }>
+            <SnackbarContent
+            message="URL Already Exists"
             style={{backgroundColor: '#FF5964'}} />
         </Snackbar>
     </div>

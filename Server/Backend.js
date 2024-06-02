@@ -36,10 +36,8 @@ app.get("/api/urls", async (req, res) => {
 
 app.post("/api/addUrl", async(req, res) => {
     const {mainUrl} = req.body
-    console.log(mainUrl)
     try{
         const newUuid = v4();
-        console.log(newUuid);
         await client.connect();
         const db = client.db("ProjectsDB");
         const collection = db.collection("UrlMaps");
@@ -53,6 +51,8 @@ app.post("/api/addUrl", async(req, res) => {
             data = await collection.find().toArray();  
             bindUrls();
             res.json(data);
+        } else {
+            res.status(409).json({ message: "URL already exists" });
         }
     } catch (error) {
         console.log("Url Adding Error: ", error);
